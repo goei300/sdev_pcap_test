@@ -50,6 +50,6 @@ uint16_t getPortDest(const u_char *);
 void PrintMacAddr(const u_char *);
 void PrintIPAddr(const u_char *);
 void PrintTCPPort(const u_char *);
-void PrintPayload(const uint8_t*, int);
+void PrintPayload(const u_char*, int);
 
 #endif //YEOBOK_H
