@@ -1,6 +1,5 @@
+#include "lib/yeobok_global.h"
 #include "lib/yeobok.h"
-#include <arpa/inet.h> // For ntohs, ntohl
-
 // validate protocol(condition)
 bool isIP(const u_char *packet) {
 
@@ -38,18 +37,18 @@ bool isPayload(const u_char *packet){
 }
 
 // read header's addr
-const u_char* getIPAddr(const uint8_t *packet) {
+const u_char* getIPAddr(const u_char *packet) {
     return packet + 14; // ethernet frame's size is 14 bytes
 }
 
-const u_char* getTCPAddr(const uint8_t *packet) {
+const u_char* getTCPAddr(const u_char *packet) {
     const uint8_t *ipHeader = getIPAddr(packet);
     // calculate IHL 
     unsigned int ipHeaderLength = (*ipHeader & 0x0F) * 4;
     return ipHeader + ipHeaderLength;
 }
 
-const u_char* getPayloadAddr(const uint8_t *packet) {
+const u_char* getPayloadAddr(const u_char *packet) {
     const uint8_t *tcpHeader = getTCPAddr(packet);
     // calculate THL from 'Offset' field
     unsigned int tcpHeaderLength = ((tcpHeader[12] >> 4) & 0x0F) * 4;
@@ -59,59 +58,61 @@ const u_char* getPayloadAddr(const uint8_t *packet) {
 
 // extract value from header
 
-const uint8_t* getMACsrc(const uint8_t *ETHERF) {
+const u_char* getMACsrc(const u_char *ETHERF) {
     return ETHERF + 6;
 }
-const uint8_t* getMACDest(const uint8_t *ETHERF) {
+const u_char* getMACDest(const u_char *ETHERF) {
     return ETHERF; 
 }
-uint32_t getIPSrc(const uint8_t *IPH) {
+uint32_t getIPSrc(const u_char *IPH) {
     return *((uint32_t *)(IPH + 12));
 }
-uint32_t getIPDest(const uint8_t *IPH) {
+uint32_t getIPDest(const u_char *IPH) {
     return *((uint32_t *)(IPH + 16));
 }
-uint16_t getPortSrc(const uint8_t *TCPH) {
+uint16_t getPortSrc(const u_char *TCPH) {
     return *((uint16_t *)TCPH);
 }
-uint16_t getPortDest(const uint8_t *TCPH) {
+uint16_t getPortDest(const u_char *TCPH) {
     return *((uint16_t *)(TCPH + 2));
 }
 
 //  # active func
 
-void PrintMacAddr(const uint8_t *packet) {
-    const uint8_t *smac = getMACsrc(packet);
-    const uint8_t *dmac = getMACDest(packet);
+void PrintMacAddr(const u_char *packet) {
+    const u_char *smac = getMACsrc(packet);
+    const u_char *dmac = getMACDest(packet);
 
-    printf("%02X:%02X:%02X:%02X:%02X:%02X\n",
+    printf("Source MAC : %02X:%02X:%02X:%02X:%02X:%02X\n",
            smac[0], smac[1], smac[2], smac[3], smac[4], smac[5]);
-    printf("%02X:%02X:%02X:%02X:%02X:%02X\n",
+    printf("Destination MAC : %02X:%02X:%02X:%02X:%02X:%02X\n",
            dmac[0], dmac[1], dmac[2], dmac[3], dmac[4], dmac[5]);
+    printf("\n");
 }
 
-void PrintIPAddr(const uint8_t *IPH) {
-    const uint8_t *sip = getIPSrc(IPH);
-    const uint8_t *dip = getIPDest(IPH);
+void PrintIPAddr(const u_char *IPH) {
+    uint32_t sip = ntohl(getIPSrc(IPH)); 
+    uint32_t dip = ntohl(getIPDest(IPH)); 
 
-    sip = ntohl(sip); 
-    dip = ntohl(dip); 
-    printf("%d.%d.%d.%d\n",
+    printf("Source IP : %d.%d.%d.%d\n",
            (sip >> 24) & 0xFF, (sip >> 16) & 0xFF, (sip >> 8) & 0xFF, sip & 0xFF);
-    printf("%d.%d.%d.%d\n",
+    printf("Destination IP : %d.%d.%d.%d\n",
            (dip >> 24) & 0xFF, (dip >> 16) & 0xFF, (dip >> 8) & 0xFF, dip & 0xFF);
+    printf("\n");
 }
 
 
-void PrintTCPPort(const uint8_t *TCPH) {
+void PrintTCPPort(const u_char *TCPH) {
     uint16_t sport = getPortSrc(TCPH);
     uint16_t dport = getPortDest(TCPH);
 
-    printf("%u\n", ntohs(sport)); 
-    printf("%u\n", ntohs(dport)); 
+    printf("Source port : %u\n", ntohs(sport)); 
+    printf("Destination port : %u\n", ntohs(dport)); 
+    printf("\n");
 }
 
-void PrintPayload(const uint8_t* payload, int length) {
+void PrintPayload(const u_char* payload, int length) {
+    printf("Payload(10bytes) : ");
     for (int i = 0; i < length; ++i) {
         printf("%02X ", payload[i]);
     }

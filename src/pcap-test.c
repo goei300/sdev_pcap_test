@@ -1,7 +1,5 @@
-#include <pcap.h>
-#include <stdbool.h>
-#include <stdio.h>
-
+#include "lib/yeobok_global.h"
+#include "lib/yeobok.h"
 void usage() {
 	printf("syntax: pcap-test <interface>\n");
 	printf("sample: pcap-test wlan0\n");
@@ -44,7 +42,26 @@ int main(int argc, char* argv[]) {
 			printf("pcap_next_ex return %d(%s)\n", res, pcap_geterr(pcap));
 			break;
 		}
-		printf("%u bytes captured\n", header->caplen);
+
+
+		// validate -> extract addr -> print active
+		if(isIP(packet) && isTCP(packet) && isPayload(packet)){
+			printf("\n################################################\n");
+			printf("\n");
+			printf("%u bytes captured\n\n", header->caplen);
+			
+			// header addr
+			const u_char *IPH = getIPAddr(packet);
+			const u_char *TCPH = getTCPAddr(packet);
+			const u_char *PayloadH = getPayloadAddr(packet);
+
+			PrintMacAddr(packet);
+			PrintIPAddr(IPH);
+			PrintTCPPort(TCPH);
+			PrintPayload(PayloadH,10);
+			printf("\n################################################\n");
+		}
+
 	}
 
 	pcap_close(pcap);

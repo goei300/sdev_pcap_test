@@ -1,4 +1,5 @@
-#include <stdint.h>
+#ifndef YEOBOK_H
+#define YEOBOK_H
 
 // Ethernet Header
 typedef struct {
@@ -33,3 +34,22 @@ typedef struct {
     uint16_t checksum;    // Checksum
     uint16_t urgentPtr;   // Urgent Pointer
 } TCPHeader;
+
+bool isIP(const u_char*);
+bool isTCP(const u_char *);
+bool isPayload(const u_char *);
+const u_char* getIPAddr(const u_char *);
+const u_char* getTCPAddr(const u_char *);
+const u_char* getPayloadAddr(const u_char *);
+const uint8_t* getMACsrc(const uint8_t *);
+const uint8_t* getMACDest(const uint8_t *);
+uint32_t getIPSrc(const u_char *);
+uint32_t getIPDest(const u_char *);
+uint16_t getPortSrc(const u_char *);
+uint16_t getPortDest(const u_char *);
+void PrintMacAddr(const u_char *);
+void PrintIPAddr(const u_char *);
+void PrintTCPPort(const u_char *);
+void PrintPayload(const uint8_t*, int);
+
+#endif //YEOBOK_H
